@@ -5,8 +5,8 @@ import { Record, ToExecute } from "./";
 interface CacheEntry {
   to: string;
   amount: number;
-  txHash?: string;
-  date?: string;
+  txHash: string | null;
+  date: string | null;
 }
 
 interface Skipped {
@@ -41,7 +41,6 @@ export class Cache {
   }
   private _updateCache() {
     // Overwrites the file with new data.
-    console.log(this.cache);
     writeFileSync(this.path, JSON.stringify(this.cache));
   }
   public stageActions(records: Array<Record>): Staged {
@@ -59,10 +58,10 @@ export class Cache {
       if (idx != -1) {
         // and if it was already executed...
         let entry = this.cache[idx];
-        if (entry?.txHash) {
+        if (entry.txHash) {
           let date;
-          if (entry?.date) {
-            date = entry?.date;
+          if (entry.date) {
+            date = entry.date;
           } else {
             throw Error("Internal error. This is a bug.");
           }
@@ -82,12 +81,16 @@ export class Cache {
       else {
         // insert it into the cache and prepare for execution.
         console.log(record);
+        console.log(record.to);
+        console.log(record.amount);
+
         this.cache.push({
           to: record.to,
           amount: record.amount,
-          txHash: undefined,
-          date: undefined,
+          txHash: null,
+          date: null,
         });
+        console.log(this.cache);
 
         staged.to_execute.push(record);
       }
