@@ -57,7 +57,7 @@ export class Cache {
 
       // If the record _is_ already cached...
       if (idx != -1) {
-        // and it was already executed...
+        // and if it was already executed...
         let entry = this.cache[idx];
         if (entry?.txHash) {
           let date;
@@ -67,6 +67,7 @@ export class Cache {
             throw Error("Internal error. This is a bug.");
           }
 
+          // then mark this as skipped.
           staged.skipped.push({
             record: record,
             date: date,
@@ -79,6 +80,7 @@ export class Cache {
       }
       // and if not...
       else {
+        // insert it into the cache and prepare for execution.
         console.log(record);
         this.cache.push({
           to: record.to,
@@ -105,6 +107,7 @@ export class Cache {
         }
       });
 
+    // Save cache to disk.
     this._updateCache();
 
     return staged;
