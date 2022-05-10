@@ -44,7 +44,7 @@ export class Cache {
     console.log(this.cache);
     writeFileSync(this.path, JSON.stringify(this.cache));
   }
-  public stageActions(records: Record[]): Staged {
+  public stageActions(records: Array<Record>): Staged {
     let staged: Staged = {
       to_execute: new Array(),
       skipped: new Array(),
