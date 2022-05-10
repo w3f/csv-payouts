@@ -1,0 +1,12 @@
+{
+  "name": "csv-payouts",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc --build tsconfig.json"
+  },
+  "dependencies": {
+    "@types/commander": "^2.12.2"
+  }
+}
