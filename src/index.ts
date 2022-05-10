@@ -10,23 +10,23 @@ import { Cache } from './cache';
 
 const CACHE_PATH = '.action_cache.json';
 
-type Config = {
+interface Config {
 	end_point: string;
 	actionFilePath: string;
 	keystore: Keystore;
 }
 
-type Keystore = {
+interface Keystore {
 	walletFilePath: string;
 	password: string;
 }
 
-export type Record = {
+export interface Record {
 	to: string;
 	amount: number;
 }
 
-export type ToExecute = {
+export interface ToExecute {
 	to: string;
 	amount: number;
 }
@@ -79,8 +79,7 @@ const start = async (args: { config: string }): Promise<void> => {
 
 	if (dangling.length != 0) {
 		log.warn(
-			"There are some staged actions there weren't \
-			executed yet and are no longer present in the action file:"
+			`There are ${dangling.length} staged actions there weren't executed yet and are no longer present in the action file:`
 		);
 
 		dangling.forEach((entry) => {
@@ -92,6 +91,7 @@ const start = async (args: { config: string }): Promise<void> => {
 	}
 
 	// Initialize RPC endpoint.
+		/*
 	const wsProvider = new WsProvider(config.end_point);
 	const api = await ApiPromise.create({ provider: wsProvider });
 
@@ -104,6 +104,7 @@ const start = async (args: { config: string }): Promise<void> => {
 		log.info(`Sent ${entry.amount} to ${account} with hash ${txHash}`);
 		cache.trackExecution(entry, txHash);
 	}
+		*/
 }
 
 const command = new Command()

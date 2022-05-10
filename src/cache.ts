@@ -2,19 +2,19 @@ import { readFileSync, existsSync, writeFileSync } from 'fs';
 import { Hash } from '@polkadot/types/interfaces';
 import { Record, ToExecute } from './';
 
-type CacheEntry = {
+interface CacheEntry {
 	to: string;
 	amount: number;
 	txHash?: string;
 	date?: string;
 }
 
-type Skipped = {
+interface Skipped {
 	record: Record;
 	date: string;
 }
 
-export type Staged = {
+export interface Staged {
 	to_execute: ToExecute[],
 	skipped: Skipped[],
 	dangling: CacheEntry[],
@@ -34,7 +34,7 @@ export class Cache {
 		this.path = path;
 		this.cache = cache;
 	}
-	private _findTargetIndex(record: Record): number | undefined {
+	private _findTargetIndex(record: Record): number {
 		return this.cache.findIndex((cache_entry) => {
 			cache_entry.to == record.to &&
 				cache_entry.amount == record.amount
@@ -42,6 +42,7 @@ export class Cache {
 	}
 	private _updateCache() {
 		// Overwrites the file with new data.
+		console.log(this.cache);
 		writeFileSync(this.path, JSON.stringify(this.cache));
 	}
 	public stageActions(records: Record[]): Staged {
@@ -51,12 +52,12 @@ export class Cache {
 			dangling: [],
 		};
 
-		records.forEach((record) => {
+		records.forEach((record: Record) => {
 			// Check if the record is already cached.
 			const idx = this._findTargetIndex(record)
 
 			// If the record _is_ already cached...
-			if (idx) {
+			if (idx != -1) {
 				// and it was already executed...
 				let entry = this.cache[idx];
 				if (entry?.txHash) {
@@ -73,6 +74,7 @@ export class Cache {
 			}
 			// and if not...
 			else {
+				console.log(record);
 				this.cache.push({
 					to: record.to,
 					amount: record.amount,
