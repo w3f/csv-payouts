@@ -4,7 +4,7 @@ import { readFileSync, createWriteStream, existsSync, WriteStream } from 'fs';
 import { parse } from 'csv-parse';
 import { ApiPromise, WsProvider } from '@polkadot/api';
 import { KeyringPair, KeyringPair$Json } from '@polkadot/keyring/types';
-import {Keyring} from '@polkadot/keyring';
+import { Keyring } from '@polkadot/keyring';
 import { Cache } from './cache';
 
 const CACHE_PATH = '.action_cache.json';
@@ -16,11 +16,16 @@ type Config = {
 }
 
 type Keystore = {
-  walletFilePath: string;
-  password: string;
+	walletFilePath: string;
+	password: string;
 }
 
 export type Record = {
+	to: string;
+	amount: number;
+}
+
+export type ToExecute = {
 	to: string;
 	amount: number;
 }
@@ -62,19 +67,20 @@ const start = async (args: { config: string }): Promise<void> => {
 
 	// Init caching.
 	let cache = new Cache(CACHE_PATH);
+	const to_execute = cache.stageActions(records);
 
 	// Initialize RPC endpoint.
 	const wsProvider = new WsProvider(config.end_point);
 	const api = await ApiPromise.create({ provider: wsProvider });
 
 	// For each provided entry in the CSV file, execute the balance.
-	for (const record of records) {
+	for (const entry of to_execute) {
 		const txHash = await api.tx.balances
-			.transfer(record.to, record.amount)
+			.transfer(entry.to, entry.amount)
 			.signAndSend(account);
 
-			console.log(`Sent ${record.amount} to ${account} with hash ${txHash}`);
-
+		console.log(`Sent ${entry.amount} to ${account} with hash ${txHash}`);
+		cache.trackExecution(entry, txHash);
 	}
 }
 

@@ -1,5 +1,6 @@
-import { readFileSync, createWriteStream, existsSync, WriteStream } from 'fs';
-import { Record } from './';
+import { readFileSync, existsSync, writeFileSync } from 'fs';
+import { Hash } from '@polkadot/types/interfaces';
+import { Record, ToExecute } from './';
 
 type CacheEntry = {
 	to: string;
@@ -9,26 +10,31 @@ type CacheEntry = {
 }
 
 export class Cache {
-	out: WriteStream;
+	path: string;
 	cache: CacheEntry[];
 
 	constructor(path: string) {
 		var cache = [];
+		// If the cache file alreach exists, read from it.
 		if (existsSync(path)) {
 			cache = JSON.parse(readFileSync(path, 'utf8'));
 		}
 
-		this.out = createWriteStream(path, 'utf8');
+		this.path = path;
 		this.cache = cache;
 	}
-	private _findTargetIndex(record: Record): number | undefined  {
+	private _findTargetIndex(record: Record): number | undefined {
 		return this.cache.findIndex((cache_entry) => {
 			cache_entry.to == record.to &&
-			cache_entry.amount == record.amount
+				cache_entry.amount == record.amount
 		});
 	}
-	private _stageActions(records: Record[]): Record[] {
-		let to_execute: Record[] = []
+	private _updateCache() {
+		// Overwrites the file with new data.
+		writeFileSync(this.path, JSON.stringify(this.cache));
+	}
+	public stageActions(records: Record[]): ToExecute[] {
+		let to_execute: ToExecute[] = []
 
 		records.forEach((record) => {
 			// Check if the record is already cached.
@@ -37,10 +43,13 @@ export class Cache {
 			// If the record _is_ already cached...
 			if (idx) {
 				// and it was already executed...
-				if (this.cache[idx].txHash) {
-					console.log(`Skipping TODO`);
-
-					delete this.cache[idx];
+				let entry = this.cache[idx];
+				if (entry.txHash) {
+					console.log(
+						`Skipping sending ${record.amount} \
+						to ${record.to}, already executed on ${entry.date},\
+						hash tx: ${entry.txHash}`
+					);
 				}
 				// otherwise prepare it for execution.
 				else {
@@ -60,17 +69,21 @@ export class Cache {
 			}
 		});
 
+		this._updateCache();
+
 		return to_execute
 	}
-	private _trackExecution(record: Record, txHash: string) {
+	public trackExecution(record: ToExecute, txHash: Hash) {
 		const idx = this._findTargetIndex(record);
 
 		if (idx) {
-			this.cache[idx].txHash = txHash;
+			this.cache[idx].txHash = txHash.toString();
 			// TODO
 			this.cache[idx].date = "";
 		} else {
 			// TODO: FATAL
 		}
+
+		this._updateCache();
 	}
 }
