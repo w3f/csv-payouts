@@ -15,17 +15,17 @@ interface Skipped {
 }
 
 export interface Staged {
-  to_execute: ToExecute[];
-  skipped: Skipped[];
-  dangling: CacheEntry[];
+  to_execute: Array<ToExecute>;
+  skipped: Array<Skipped>;
+  dangling: Array<CacheEntry>;
 }
 
 export class Cache {
   path: string;
-  cache: CacheEntry[];
+  cache: Array<CacheEntry>;
 
   constructor(path: string) {
-    var cache = [];
+    let cache = new Array();
     // If the cache file alreach exists, read from it.
     if (existsSync(path)) {
       cache = JSON.parse(readFileSync(path, "utf8"));
@@ -46,9 +46,9 @@ export class Cache {
   }
   public stageActions(records: Record[]): Staged {
     let staged: Staged = {
-      to_execute: [],
-      skipped: [],
-      dangling: [],
+      to_execute: new Array(),
+      skipped: new Array(),
+      dangling: new Array(),
     };
 
     records.forEach((record: Record) => {
