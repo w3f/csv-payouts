@@ -1,4 +1,4 @@
-end_point: string
+end_point: wss://rpc.polkadot.io
 actionFilePath: config/actions.csv
 keystore:
   walletFilePath: config/key.json

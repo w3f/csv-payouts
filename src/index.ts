@@ -22,7 +22,7 @@ type Record = {
 	amount: number;
 }
 
-export const startAction = async (args: { config: string }): Promise<void> => {
+const start = async (args: { config: string }): Promise<void> => {
 	console.log("Reading config from file", args.config);
 	const config = load(readFileSync(args.config, "utf8")) as Config;
 
@@ -44,15 +44,31 @@ export const startAction = async (args: { config: string }): Promise<void> => {
 
 	console.log(`Parsed ${records.length} CSV entries`);
 
+	console.log("Reading account key from", config.keystore.walletFilePath);
 	const keyring = new Keyring({ type: 'sr25519' });
 	const json = JSON.parse(readFileSync(config.keystore.walletFilePath, 'utf8'));
-	const keystore = keyring.addFromJson(json);
-	keystore.decodePkcs8(config.keystore.password);
+	const account = keyring.addFromJson(json);
+	account.decodePkcs8(config.keystore.password);
+
+	if (account.isLocked) {
+		// TODO: Error
+	}
+
+	const wsProvider = new WsProvider(config.end_point);
+	const api = await ApiPromise.create({ provider: wsProvider });
+
+	for (const record of records) {
+		const txHash = await api.tx.balances
+			.transfer(record.to, record.amount)
+			.signAndSend(account);
+
+			console.log(`Sent ${record.amount} to ${account} with hash ${txHash}`);
+	}
 }
 
 const command = new Command()
 	.description('Execute the CSV payouts')
 	.option('-c, --config [path]', 'Path to config file.', './config/main.csv')
-	.action(startAction);
+	.action(start);
 
 command.parse();
