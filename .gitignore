@@ -1,3 +1,5 @@
 .devcontainer/
 dist/
 node_modules/
+config.yaml
+secret_key.json

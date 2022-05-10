@@ -1,0 +1,5 @@
+end_point: string
+actionFilePath: config/actions.csv
+keystore:
+  walletFilePath: config/key.json
+  password: 'password'
