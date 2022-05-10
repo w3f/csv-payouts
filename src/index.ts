@@ -103,7 +103,7 @@ const start = async (args: { config: string }): Promise<void> => {
 		log.info(`Sent ${entry.amount} to ${account} with hash ${txHash}`);
 		cache.trackExecution(entry, txHash);
 	}
-		*/
+	*/
 };
 
 const command = new Command()
