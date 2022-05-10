@@ -6,7 +6,7 @@ interface CacheEntry {
   to: string;
   amount: number;
   txHash: string | null;
-  date: string | null;
+  exec_date: string | null;
 }
 
 interface Skipped {
@@ -60,8 +60,8 @@ export class Cache {
         let entry = this.cache[idx];
         if (entry.txHash) {
           let date;
-          if (entry.date) {
-            date = entry.date;
+          if (entry.exec_date) {
+            date = entry.exec_date;
           } else {
             throw Error("Internal error. This is a bug.");
           }
@@ -88,7 +88,7 @@ export class Cache {
           to: record.to,
           amount: record.amount,
           txHash: null,
-          date: null,
+          exec_date: null,
         });
         console.log(this.cache);
 
@@ -120,11 +120,12 @@ export class Cache {
 
     if (idx != -1) {
       this.cache[idx].txHash = txHash.toString();
-      this.cache[idx].date = new Date().toISOString();
+      this.cache[idx].exec_date = new Date().toISOString();
     } else {
       throw Error("Internal error. This is a bug.");
     }
 
+    // Save cache to disk.
     this._updateCache();
   }
 }
