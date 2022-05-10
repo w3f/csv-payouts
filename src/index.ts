@@ -1,10 +1,13 @@
 import { Command } from 'commander';
 import { load } from 'js-yaml';
-import { readFileSync } from 'fs';
+import { readFileSync, createWriteStream, existsSync, WriteStream } from 'fs';
 import { parse } from 'csv-parse';
 import { ApiPromise, WsProvider } from '@polkadot/api';
 import { KeyringPair, KeyringPair$Json } from '@polkadot/keyring/types';
 import {Keyring} from '@polkadot/keyring';
+import { Cache } from './cache';
+
+const CACHE_PATH = '.action_cache.json';
 
 type Config = {
 	end_point: string;
@@ -17,7 +20,7 @@ type Keystore = {
   password: string;
 }
 
-type Record = {
+export type Record = {
 	to: string;
 	amount: number;
 }
@@ -57,6 +60,9 @@ const start = async (args: { config: string }): Promise<void> => {
 		// TODO: Error
 	}
 
+	// Init caching.
+	let cache = new Cache(CACHE_PATH);
+
 	// Initialize RPC endpoint.
 	const wsProvider = new WsProvider(config.end_point);
 	const api = await ApiPromise.create({ provider: wsProvider });
@@ -68,6 +74,7 @@ const start = async (args: { config: string }): Promise<void> => {
 			.signAndSend(account);
 
 			console.log(`Sent ${record.amount} to ${account} with hash ${txHash}`);
+
 	}
 }
 
