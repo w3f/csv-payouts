@@ -1,5 +1,5 @@
 end_point: wss://rpc.polkadot.io
-actionFilePath: config/actions.csv
+actionFilePath: config/sample.actions.csv
 keystore:
-  walletFilePath: config/key.json
+  walletFilePath: config/sample.key.json
   password: 'password'
