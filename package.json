@@ -15,5 +15,8 @@
     "@types/node": "^17.0.31",
     "@w3f/logger": "^0.4.3",
     "js-yaml": "^4.1.0"
+  },
+  "devDependencies": {
+    "prettier": "^2.6.2"
   }
 }

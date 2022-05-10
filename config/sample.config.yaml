@@ -2,4 +2,4 @@ end_point: wss://rpc.polkadot.io
 actionFilePath: config/sample.actions.csv
 keystore:
   walletFilePath: config/sample.key.json
-  password: 'p4ssw0rd'
+  password: "p4ssw0rd"
