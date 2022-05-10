@@ -106,7 +106,7 @@ export class Cache {
   public trackExecution(record: ToExecute, txHash: Hash) {
     const idx = this._findTargetIndex(record);
 
-    if (idx) {
+    if (idx != -1) {
       this.cache[idx].txHash = txHash.toString();
       // TODO
       this.cache[idx].date = "";
