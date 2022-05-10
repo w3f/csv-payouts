@@ -67,7 +67,7 @@ const start = async (args: { config: string }): Promise<void> => {
 
 	// Init caching.
 	let cache = new Cache(CACHE_PATH);
-	const to_execute = cache.stageActions(records);
+	const [to_execute, danlging] = cache.stageActions(records);
 
 	// Initialize RPC endpoint.
 	const wsProvider = new WsProvider(config.end_point);

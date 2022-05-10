@@ -33,7 +33,7 @@ export class Cache {
 		// Overwrites the file with new data.
 		writeFileSync(this.path, JSON.stringify(this.cache));
 	}
-	public stageActions(records: Record[]): ToExecute[] {
+	public stageActions(records: Record[]): [ToExecute[], CacheEntry[]] {
 		let to_execute: ToExecute[] = []
 
 		records.forEach((record) => {
@@ -69,9 +69,25 @@ export class Cache {
 			}
 		});
 
+		// Find any dangling entries, i.e. entries that have been cached, but
+		// not executed, and are currently not in the action file.
+		let dangling: CacheEntry[] = [];
+		this.cache
+			.filter((entry) => !entry.txHash)
+			.forEach((entry) => {
+				let found = records.find((record) => {
+					entry.to == record.to &&
+						entry.amount == record.amount
+				});
+
+				if (!found) {
+					dangling.push(entry);
+				}
+			});
+
 		this._updateCache();
 
-		return to_execute
+		return [to_execute, dangling]
 	}
 	public trackExecution(record: ToExecute, txHash: Hash) {
 		const idx = this._findTargetIndex(record);
