@@ -23,9 +23,11 @@ type Record = {
 }
 
 const start = async (args: { config: string }): Promise<void> => {
+	// Parse Config
 	console.log("Reading config from file", args.config);
 	const config = load(readFileSync(args.config, "utf8")) as Config;
 
+	// Parse CSV file
 	console.log("Reading from file", config.actionFilePath);
 	let content = readFileSync(config.actionFilePath, 'utf8');
 
@@ -44,6 +46,7 @@ const start = async (args: { config: string }): Promise<void> => {
 
 	console.log(`Parsed ${records.length} CSV entries`);
 
+	// Parse and decode provided account.
 	console.log("Reading account key from", config.keystore.walletFilePath);
 	const keyring = new Keyring({ type: 'sr25519' });
 	const json = JSON.parse(readFileSync(config.keystore.walletFilePath, 'utf8'));
@@ -54,9 +57,11 @@ const start = async (args: { config: string }): Promise<void> => {
 		// TODO: Error
 	}
 
+	// Initialize RPC endpoint.
 	const wsProvider = new WsProvider(config.end_point);
 	const api = await ApiPromise.create({ provider: wsProvider });
 
+	// For each provided entry in the CSV file, execute the balance.
 	for (const record of records) {
 		const txHash = await api.tx.balances
 			.transfer(record.to, record.amount)
