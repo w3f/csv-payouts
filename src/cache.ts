@@ -9,6 +9,17 @@ type CacheEntry = {
 	date?: string;
 }
 
+type Skipped = {
+	record: Record;
+	date: string;
+}
+
+export type Staged = {
+	to_execute: ToExecute[],
+	skipped: Skipped[],
+	dangling: CacheEntry[],
+}
+
 export class Cache {
 	path: string;
 	cache: CacheEntry[];
@@ -33,8 +44,12 @@ export class Cache {
 		// Overwrites the file with new data.
 		writeFileSync(this.path, JSON.stringify(this.cache));
 	}
-	public stageActions(records: Record[]): [ToExecute[], CacheEntry[]] {
-		let to_execute: ToExecute[] = []
+	public stageActions(records: Record[]): Staged {
+		let staged: Staged = {
+			to_execute: [],
+			skipped: [],
+			dangling: [],
+		};
 
 		records.forEach((record) => {
 			// Check if the record is already cached.
@@ -44,16 +59,16 @@ export class Cache {
 			if (idx) {
 				// and it was already executed...
 				let entry = this.cache[idx];
-				if (entry.txHash) {
-					console.log(
-						`Skipping sending ${record.amount} \
-						to ${record.to}, already executed on ${entry.date},\
-						hash tx: ${entry.txHash}`
-					);
+				if (entry?.txHash) {
+					staged.skipped.push({
+						record: record,
+						// TODO
+						date: "",
+					});
 				}
 				// otherwise prepare it for execution.
 				else {
-					to_execute.push(record);
+					staged.to_execute.push(record);
 				}
 			}
 			// and if not...
@@ -65,13 +80,12 @@ export class Cache {
 					date: undefined,
 				});
 
-				to_execute.push(record);
+				staged.to_execute.push(record);
 			}
 		});
 
 		// Find any dangling entries, i.e. entries that have been cached, but
 		// not executed, and are currently not in the action file.
-		let dangling: CacheEntry[] = [];
 		this.cache
 			.filter((entry) => !entry.txHash)
 			.forEach((entry) => {
@@ -81,13 +95,13 @@ export class Cache {
 				});
 
 				if (!found) {
-					dangling.push(entry);
+					staged.dangling.push(entry);
 				}
 			});
 
 		this._updateCache();
 
-		return [to_execute, dangling]
+		return staged
 	}
 	public trackExecution(record: ToExecute, txHash: Hash) {
 		const idx = this._findTargetIndex(record);

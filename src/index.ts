@@ -49,7 +49,7 @@ const start = async (args: { config: string }): Promise<void> => {
 	let records: Record[] = [];
 	const parser = parse({ delimiter: "," });
 	parser
-		.on('readable', (data) => {
+		.on('readable', () => {
 			let record;
 			while ((record = parser.read()) !== null) {
 				records.push(record as Record);
@@ -62,7 +62,7 @@ const start = async (args: { config: string }): Promise<void> => {
 	log.info(`Parsed ${records.length} CSV entries`);
 
 	// Parse and decode provided account.
-	log.info(`Reading account key from ${config.keystore.walletFilePath}`);
+	log.debug(`Reading account key from ${config.keystore.walletFilePath}`);
 	const keyring = new Keyring({ type: 'sr25519' });
 	const json = JSON.parse(readFileSync(config.keystore.walletFilePath, 'utf8'));
 	const account = keyring.addFromJson(json);
@@ -75,15 +75,15 @@ const start = async (args: { config: string }): Promise<void> => {
 
 	// Init caching.
 	let cache = new Cache(CACHE_PATH);
-	const [to_execute, danlging] = cache.stageActions(records);
+	const { to_execute, skipped, dangling } = cache.stageActions(records);
 
-	if (danlging.length != 0) {
+	if (dangling.length != 0) {
 		log.warn(
 			"There are some staged actions there weren't \
 			executed yet and are no longer present in the action file:"
 		);
 
-		danlging.forEach((entry) => {
+		dangling.forEach((entry) => {
 			log.warn(`To: ${entry.to}, amount: ${entry.amount}`);
 		});
 
