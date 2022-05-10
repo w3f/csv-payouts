@@ -85,7 +85,7 @@ const start = async (args: { config: string }): Promise<void> => {
       log.warn(`To: ${entry.to}, amount: ${entry.amount}`);
     });
 
-    log.error(`Please fix the issue or run the 'unstage' command.`);
+    log.error(`Please fix the issue or reset cache.`);
     abort();
   }
 

@@ -60,10 +60,16 @@ export class Cache {
         // and it was already executed...
         let entry = this.cache[idx];
         if (entry?.txHash) {
+          let date;
+          if (entry?.date) {
+            date = entry?.date;
+          } else {
+            throw Error("Internal error. This is a bug.");
+          }
+
           staged.skipped.push({
             record: record,
-            // TODO
-            date: "",
+            date: date,
           });
         }
         // otherwise prepare it for execution.
@@ -108,10 +114,9 @@ export class Cache {
 
     if (idx != -1) {
       this.cache[idx].txHash = txHash.toString();
-      // TODO
-      this.cache[idx].date = "";
+      this.cache[idx].date = new Date().toISOString();
     } else {
-      // TODO: FATAL
+      throw Error("Internal error. This is a bug.");
     }
 
     this._updateCache();
