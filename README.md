@@ -2,8 +2,8 @@
 
 ## About
 
-This script reads a list of recipients and their corresonding amounts and
-executes a transaction.
+This script reads a list of recipients and the corresonding amounts to be
+sent and executes each entry as a transaction.
 
 ## Bulding
 
