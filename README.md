@@ -19,7 +19,7 @@ keystore:
   password: "p4ssw0rd"
 ```
 
-### Action File
+### Action / CSV File
 
 The action file contains a list of `<RECIPIENT>,<AMOUNT>` pairs that dictate
 what transactions should be executed. For example;
@@ -64,3 +64,10 @@ Here's an example on the Westend network:
 2022-05-11 22:14:27 info: Payouts completed.
 Done in 1.67s.
 ```
+
+### Caching
+
+Execution creates a local `.action_cache.json` file which keeps track of which
+transactions have already been executed. Aborting the process and restarting 
+will skip the already completed transactions and continue with the remaining
+entries of the CSV list until all have been executed.
