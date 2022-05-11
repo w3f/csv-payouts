@@ -3,16 +3,15 @@ import { load } from "js-yaml";
 import { readFileSync, createWriteStream, existsSync, WriteStream } from "fs";
 import { parse } from "csv-parse";
 import { ApiPromise, WsProvider } from "@polkadot/api";
-import { formatBalance } from "@polkadot/util";
 import { KeyringPair, KeyringPair$Json } from "@polkadot/keyring/types";
 import { Keyring } from "@polkadot/keyring";
-import { createLogger } from "@w3f/logger";
+import { createLogger, Logger } from "@w3f/logger";
 import { Cache } from "./cache";
 
 const CACHE_PATH = ".action_cache.json";
 
 interface Config {
-  end_point: string;
+  endpoint: string;
   actionFilePath: string;
   keystore: Keystore;
 }
@@ -36,9 +35,7 @@ function abort() {
   process.exit(1);
 }
 
-const start = async (args: { config: string }): Promise<void> => {
-  const log = createLogger("debug");
-
+function load_from_files(log: Logger, args: { config: string}): [Array<Record>, KeyringPair, string] {
   // Parse Config
   log.debug(`Reading config from file ${args.config}`);
   const config = load(readFileSync(args.config, "utf8")) as Config;
@@ -58,7 +55,6 @@ const start = async (args: { config: string }): Promise<void> => {
 
   parser.write(content);
   parser.end();
-
   log.info(`Parsed ${records.length} CSV entries`);
 
   // Parse and decode provided account.
@@ -72,6 +68,23 @@ const start = async (args: { config: string }): Promise<void> => {
     log.error("Failed to initialize keystore, account is locked");
     abort();
   }
+
+  return [records, account, config.endpoint];
+}
+
+const start = async (args: { config: string }): Promise<void> => {
+  const log = createLogger("debug");
+
+  let loaded;
+  try {
+     loaded = load_from_files(log, args);
+  } catch (error) {
+    log.error(`Failed to load files from config, please double-check: ${error}`);
+    abort();
+  }
+
+  // Note: will never be undefined.
+  const [records, account, endpoint ] = loaded as [ Array<Record>, KeyringPair, string ];
 
   // Init caching.
   let cache = new Cache(CACHE_PATH);
@@ -113,9 +126,9 @@ const start = async (args: { config: string }): Promise<void> => {
   }
 
   // Initialize RPC endpoint.
-  log.debug(`Initializing websocket endpoint at ${config.end_point}`);
+  log.debug(`Initializing websocket endpoint at ${endpoint}`);
 
-  const wsProvider = new WsProvider(config.end_point);
+  const wsProvider = new WsProvider(endpoint);
   const api = await ApiPromise.create({ provider: wsProvider });
 
   // Retrieve decimals for the chain.
@@ -131,10 +144,10 @@ const start = async (args: { config: string }): Promise<void> => {
   // For each provided entry in the CSV file, execute the balance.
   log.info("Starting transfer progress...");
   for (const entry of to_execute) {
+    // Note: will never be undefined.
     const amount_unit = entry.amount * Math.pow(10, decimals as number);
     const nonce = await api.rpc.system.accountNextIndex(account.address);
 
-    console.log(amount_unit);
     const tx_hash = await api.tx.balances
       .transfer(entry.to, amount_unit)
       .signAndSend(account, { nonce });
