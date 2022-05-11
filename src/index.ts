@@ -131,7 +131,7 @@ const start = async (args: { config: string }): Promise<void> => {
   // For each provided entry in the CSV file, execute the balance.
   log.info("Starting transfer progress...");
   for (const entry of to_execute) {
-    const amount_unit = entry.amount*Math.pow(10, decimals as number);
+    const amount_unit = entry.amount * Math.pow(10, decimals as number);
     const nonce = await api.rpc.system.accountNextIndex(account.address);
 
     console.log(amount_unit);
@@ -139,7 +139,9 @@ const start = async (args: { config: string }): Promise<void> => {
       .transfer(entry.to, amount_unit)
       .signAndSend(account, { nonce });
 
-    log.info(`Sent ${entry.amount} (${amount_unit} units) to ${entry.to} with hash ${tx_hash}`);
+    log.info(
+      `Sent ${entry.amount} (${amount_unit} units) to ${entry.to} with hash ${tx_hash}`
+    );
     cache.trackExecution(entry, tx_hash.toString());
   }
 
