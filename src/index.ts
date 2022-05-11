@@ -131,13 +131,13 @@ const start = async (args: { config: string }): Promise<void> => {
   // For each provided entry in the CSV file, execute the balance.
   log.info("Starting transfer progress...");
   for (const entry of to_execute) {
-    const amount = formatBalance(entry.amount, undefined, decimals);
+    const formatted_amount = formatBalance(entry.amount, undefined, decimals);
 
     const tx_hash = await api.tx.balances
-      .transfer(entry.to, entry.amount)
+      .transfer(entry.to, formatted_amount)
       .signAndSend(account);
 
-    log.info(`Sent ${entry.amount} to ${entry.to} with hash ${tx_hash}`);
+    log.info(`Sent ${entry.amount} (${formatted_amount} units) to ${entry.to} with hash ${tx_hash}`);
     cache.trackExecution(entry, tx_hash.toString());
   }
 };
