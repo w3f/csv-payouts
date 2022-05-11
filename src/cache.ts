@@ -36,12 +36,12 @@ export class Cache {
   }
   private _findTargetIndex(record: Record): number {
     return this.cache.findIndex((cache_entry) => {
-      cache_entry.to == record.to && cache_entry.amount == record.amount;
+      return cache_entry.to == record.to && cache_entry.amount == record.amount;
     });
   }
   private _updateCache() {
     // Overwrites the file with new data.
-    writeFileSync(this.path, JSON.stringify(this.cache));
+    writeFileSync(this.path, JSON.stringify(this.cache, null, 2));
   }
   public stageActions(records: Array<Record>): Staged {
     let staged: Staged = {
@@ -80,17 +80,12 @@ export class Cache {
       // and if not...
       else {
         // insert it into the cache and prepare for execution.
-        console.log(record);
-        console.log(record.to);
-        console.log(record.amount);
-
         this.cache.push({
           to: record.to,
           amount: record.amount,
           txHash: null,
           exec_date: null,
         });
-        console.log(this.cache);
 
         staged.to_execute.push(record);
       }
@@ -102,7 +97,7 @@ export class Cache {
       .filter((entry) => !entry.txHash)
       .forEach((entry) => {
         let found = records.find((record) => {
-          entry.to == record.to && entry.amount == record.amount;
+          return record.to == entry.to && record.amount == entry.amount;
         });
 
         if (!found) {
