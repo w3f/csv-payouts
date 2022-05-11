@@ -1,7 +1,8 @@
+import { existsSync, unlinkSync} from "fs";
 import { Record } from "./";
 import { Cache } from "./cache";
 
-const CACHE_PATH = "/tmp";
+const CACHE_PATH = "/tmp/action_cache.json";
 
 function record_samples(): Array<Record> {
   return [
@@ -175,7 +176,6 @@ test("danglingActions", () => {
   }
 });
 
-
 test("noDanglingAfterExecution", () => {
   const cache = new Cache();
 
@@ -197,7 +197,7 @@ test("noDanglingAfterExecution", () => {
   }
 
   cache.trackExecution(alice, "hash_a");
-  cache.trackExecution(eve, "hash_a");
+  cache.trackExecution(eve, "hash_b");
 
   {
     // Only bob is reinserted, alice and eve are missing.
@@ -211,4 +211,45 @@ test("noDanglingAfterExecution", () => {
 
     expect(to_execute).toContain(bob);
   }
+});
+
+test("persistentCache", () => {
+  if (existsSync(CACHE_PATH)) {
+    unlinkSync(CACHE_PATH);
+  }
+
+	// Persistent cache path set.
+  const cache = new Cache(CACHE_PATH);
+
+  const records = record_samples();
+  const alice = records[0];
+  const bob = records[1];
+  const eve = records[2];
+
+  const _ = cache.stageActions(records);
+
+  // Mark all as executed.
+  cache.trackExecution(alice, "hash_a");
+  cache.trackExecution(bob, "hash_b");
+  cache.trackExecution(eve, "hash_c");
+
+  // Init new cache. Actions are read from persistent storage and marked
+  // accordingly.
+  const cache2 = new Cache(CACHE_PATH);
+
+  {
+    const { to_execute, skipped, dangling } = cache2.stageActions(records);
+
+    // All have been marked as executed now.
+    expect(to_execute.length).toEqual(0);
+    expect(skipped.length).toEqual(3);
+    expect(dangling.length).toEqual(0);
+
+    expect(skipped[0]).toMatchObject({ record: alice, txHash: "hash_a" });
+    expect(skipped[1]).toMatchObject({ record: bob, txHash: "hash_b" });
+    expect(skipped[2]).toMatchObject({ record: eve, txHash: "hash_c" });
+  }
+
+  // Cleanup
+  unlinkSync(CACHE_PATH);
 });
