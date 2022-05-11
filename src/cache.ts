@@ -23,15 +23,24 @@ export interface Staged {
 export class Cache {
   path: string;
   cache: Array<CacheEntry>;
+  mem_only: boolean;
 
-  constructor(path: string) {
+  constructor(path?: string) {
     let cache = new Array();
-    // If the cache file alreach exists, read from it.
-    if (existsSync(path)) {
-      cache = JSON.parse(readFileSync(path, "utf8"));
+
+    if (path == undefined) {
+      this.path = "";
+      this.mem_only = true;
+    } else {
+      // If the cache file alreach exists, read from it.
+      if (existsSync(path)) {
+        cache = JSON.parse(readFileSync(path, "utf8"));
+      }
+
+      this.path = path;
+      this.mem_only = false;
     }
 
-    this.path = path;
     this.cache = cache;
   }
   private _findTargetIndex(record: Record): number {
@@ -41,7 +50,9 @@ export class Cache {
   }
   private _updateCache() {
     // Overwrites the file with new data.
-    writeFileSync(this.path, JSON.stringify(this.cache, null, 2));
+    if (!this.mem_only) {
+      writeFileSync(this.path, JSON.stringify(this.cache, null, 2));
+    }
   }
   public stageActions(records: Array<Record>): Staged {
     let staged: Staged = {
