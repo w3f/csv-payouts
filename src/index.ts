@@ -173,7 +173,7 @@ const start = async (args: { config: string }): Promise<void> => {
 
 const command = new Command()
   .description("Execute the CSV payouts")
-  .option("-c, --config [path]", "Path to config file.", "./config/main.csv")
+  .option("-c, --config [path]", "Path to config file.", "./config.yaml")
   .action(start);
 
 command.parse();
