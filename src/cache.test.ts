@@ -48,7 +48,7 @@ test('nonExecutedRecordInserts', () => {
 	}
 
 	{
-		// Re-adds alice and eve, bob is newly inserted.
+		// Reinserts alice and eve, bob is newly inserted.
 		const { to_execute, skipped, dangling } = cache.stageActions(records);
 
 		// No executions have been tracked yet, therefore all are marked for
@@ -118,7 +118,7 @@ test('danglingActions', () => {
 	}
 
 	{
-		// Only bob is re-added, alice and eve are missing.
+		// Only bob is reinserted, alice and eve are missing.
 		const { to_execute, skipped, dangling } = cache.stageActions([bob]);
 
 		expect(to_execute.length).toEqual(1);
