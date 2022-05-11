@@ -14,7 +14,7 @@ yarn start -c config.yaml
 
 ## Config
 
-See [`config/](./config/) for some examples.
+See [config/](./config/) for some examples.
 
 ### Main
 
