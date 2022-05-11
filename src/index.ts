@@ -144,7 +144,7 @@ const start = async (args: { config: string }): Promise<void> => {
   let decimals;
   const res = api.registry.chainDecimals;
   if (res.length != 1) {
-    log.error(`Retreived unexpected data regarding chain decimals, exiting...`);
+    log.error(`Retrieved unexpected data regarding chain decimals, exiting...`);
     abort();
   } else {
     decimals = res[0];
