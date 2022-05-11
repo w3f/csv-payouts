@@ -1,4 +1,4 @@
-import { existsSync, unlinkSync} from "fs";
+import { existsSync, unlinkSync } from "fs";
 import { Record } from "./";
 import { Cache } from "./cache";
 
@@ -205,8 +205,8 @@ test("noDanglingAfterExecution", () => {
 
     expect(to_execute.length).toEqual(1);
     expect(skipped.length).toEqual(0);
-	// Since alice and eve were already executed, no dangling action is
-	// returned.
+    // Since alice and eve were already executed, no dangling action is
+    // returned.
     expect(dangling.length).toEqual(0);
 
     expect(to_execute).toContain(bob);
@@ -218,7 +218,7 @@ test("persistentCache", () => {
     unlinkSync(CACHE_PATH);
   }
 
-	// Persistent cache path set.
+  // Persistent cache path set.
   const cache = new Cache(CACHE_PATH);
 
   const records = record_samples();
