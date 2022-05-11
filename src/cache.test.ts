@@ -174,3 +174,41 @@ test("danglingActions", () => {
     });
   }
 });
+
+
+test("noDanglingAfterExecution", () => {
+  const cache = new Cache();
+
+  const records = record_samples();
+  const alice = records[0];
+  const bob = records[1];
+  const eve = records[2];
+
+  {
+    const { to_execute, skipped, dangling } = cache.stageActions(records);
+
+    expect(to_execute.length).toEqual(3);
+    expect(skipped.length).toEqual(0);
+    expect(dangling.length).toEqual(0);
+
+    expect(to_execute).toContain(alice);
+    expect(to_execute).toContain(bob);
+    expect(to_execute).toContain(eve);
+  }
+
+  cache.trackExecution(alice, "hash_a");
+  cache.trackExecution(eve, "hash_a");
+
+  {
+    // Only bob is reinserted, alice and eve are missing.
+    const { to_execute, skipped, dangling } = cache.stageActions([bob]);
+
+    expect(to_execute.length).toEqual(1);
+    expect(skipped.length).toEqual(0);
+	// Since alice and eve were already executed, no dangling action is
+	// returned.
+    expect(dangling.length).toEqual(0);
+
+    expect(to_execute).toContain(bob);
+  }
+});
