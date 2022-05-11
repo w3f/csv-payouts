@@ -3,6 +3,7 @@ import { load } from "js-yaml";
 import { readFileSync, createWriteStream, existsSync, WriteStream } from "fs";
 import { parse } from "csv-parse";
 import { ApiPromise, WsProvider } from "@polkadot/api";
+import { formatBalance } from "@polkadot/util";
 import { KeyringPair, KeyringPair$Json } from "@polkadot/keyring/types";
 import { Keyring } from "@polkadot/keyring";
 import { createLogger } from "@w3f/logger";
@@ -113,19 +114,31 @@ const start = async (args: { config: string }): Promise<void> => {
 
   // Initialize RPC endpoint.
   log.debug(`Initializing websocket endpoint at ${config.end_point}`);
-  //const wsProvider = new WsProvider(config.end_point);
-  //const api = await ApiPromise.create({ provider: wsProvider });
+
+  const wsProvider = new WsProvider(config.end_point);
+  const api = await ApiPromise.create({ provider: wsProvider });
+
+  // Retrieve decimals for the chain.
+  let decimals;
+  const res = api.registry.chainDecimals;
+  if (res.length != 0) {
+    log.error(`Retreived unexpected data regarding chain decimals, exiting...`);
+    abort();
+  } else {
+    decimals = res[0];
+  }
 
   // For each provided entry in the CSV file, execute the balance.
   log.info("Starting transfer progress...");
   for (const entry of to_execute) {
-    //const txHash = await api.tx.balances
-    //.transfer(entry.to, entry.amount)
-    //.signAndSend(account);
+    const amount = formatBalance(entry.amount, undefined, decimals);
 
-    const txHash = "asdf";
-    log.info(`Sent ${entry.amount} to ${entry.to} with hash ${txHash}`);
-    cache.trackExecution(entry, txHash);
+    const tx_hash = await api.tx.balances
+      .transfer(entry.to, entry.amount)
+      .signAndSend(account);
+
+    log.info(`Sent ${entry.amount} to ${entry.to} with hash ${tx_hash}`);
+    cache.trackExecution(entry, tx_hash.toString());
   }
 };
 
