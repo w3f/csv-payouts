@@ -51,7 +51,7 @@ const start = async (args: { config: string }): Promise<void> => {
   parser.on("readable", () => {
     let record;
     while ((record = parser.read()) !== null) {
-      records.push({to:record[0],amount:record[1]});
+      records.push({ to: record[0], amount: record[1] });
     }
   });
 
@@ -94,13 +94,13 @@ const start = async (args: { config: string }): Promise<void> => {
   for (const entry of skipped) {
     log.warn(
       `Skipping: ${entry.record.amount} to ${entry.record.to}, executed on ${entry.date}, tx hash: ${entry.txHash}`
-      );
+    );
   }
 
   // Check actions to be executed.
   if (to_execute.length == 1) {
     log.info(`There is ${to_execute.length} action to be executed`);
-  } else if (to_execute.length > 1) { 
+  } else if (to_execute.length > 1) {
     log.info(`There are ${to_execute.length} actions to be executed`);
   } else {
     log.warn("Nothing to execute, exiting...");
@@ -113,20 +113,20 @@ const start = async (args: { config: string }): Promise<void> => {
 
   // Initialize RPC endpoint.
   log.debug(`Initializing websocket endpoint at ${config.end_point}`);
-	//const wsProvider = new WsProvider(config.end_point);
-	//const api = await ApiPromise.create({ provider: wsProvider });
+  //const wsProvider = new WsProvider(config.end_point);
+  //const api = await ApiPromise.create({ provider: wsProvider });
 
-	// For each provided entry in the CSV file, execute the balance.
+  // For each provided entry in the CSV file, execute the balance.
   log.info("Starting transfer progress...");
-	for (const entry of to_execute) {
-		//const txHash = await api.tx.balances
-			//.transfer(entry.to, entry.amount)
-			//.signAndSend(account);
+  for (const entry of to_execute) {
+    //const txHash = await api.tx.balances
+    //.transfer(entry.to, entry.amount)
+    //.signAndSend(account);
 
     const txHash = "asdf";
-		log.info(`Sent ${entry.amount} to ${entry.to} with hash ${txHash}`);
-		cache.trackExecution(entry, txHash);
-	}
+    log.info(`Sent ${entry.amount} to ${entry.to} with hash ${txHash}`);
+    cache.trackExecution(entry, txHash);
+  }
 };
 
 const command = new Command()
