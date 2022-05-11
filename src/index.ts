@@ -51,7 +51,7 @@ const start = async (args: { config: string }): Promise<void> => {
   parser.on("readable", () => {
     let record;
     while ((record = parser.read()) !== null) {
-      records.push({to:record[0],amount:record[1]));
+      records.push({to:record[0],amount:record[1]});
     }
   });
 
