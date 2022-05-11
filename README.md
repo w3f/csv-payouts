@@ -70,4 +70,4 @@ Done in 1.67s.
 Execution creates a local `.action_cache.json` file which keeps track of which
 transactions have already been executed. Aborting the process and restarting 
 will skip the already completed transactions and continue with the remaining
-entries of the CSV list until all have been executed.
+entries of the CSV list until all have been successfully executed.
