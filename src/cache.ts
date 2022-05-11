@@ -1,5 +1,4 @@
 import { readFileSync, existsSync, writeFileSync } from "fs";
-import { Hash } from "@polkadot/types/interfaces";
 import { Record, ToExecute } from "./";
 
 interface CacheEntry {
@@ -112,11 +111,11 @@ export class Cache {
 
     return staged;
   }
-  public trackExecution(record: ToExecute, txHash: Hash) {
+  public trackExecution(record: ToExecute, txHash: string) {
     const idx = this._findTargetIndex(record);
 
     if (idx != -1) {
-      this.cache[idx].txHash = txHash.toString();
+      this.cache[idx].txHash = txHash;
       this.cache[idx].exec_date = new Date().toISOString();
     } else {
       throw Error("Internal error. This is a bug.");
