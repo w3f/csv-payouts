@@ -121,7 +121,7 @@ const start = async (args: { config: string }): Promise<void> => {
   // Retrieve decimals for the chain.
   let decimals;
   const res = api.registry.chainDecimals;
-  if (res.length != 0) {
+  if (res.length != 1) {
     log.error(`Retreived unexpected data regarding chain decimals, exiting...`);
     abort();
   } else {
@@ -131,15 +131,20 @@ const start = async (args: { config: string }): Promise<void> => {
   // For each provided entry in the CSV file, execute the balance.
   log.info("Starting transfer progress...");
   for (const entry of to_execute) {
-    const formatted_amount = formatBalance(entry.amount, undefined, decimals);
+    const amount_unit = entry.amount*Math.pow(10, decimals as number);
+    const nonce = await api.rpc.system.accountNextIndex(account.address);
 
+    console.log(amount_unit);
     const tx_hash = await api.tx.balances
-      .transfer(entry.to, formatted_amount)
-      .signAndSend(account);
+      .transfer(entry.to, amount_unit)
+      .signAndSend(account, { nonce });
 
-    log.info(`Sent ${entry.amount} (${formatted_amount} units) to ${entry.to} with hash ${tx_hash}`);
+    log.info(`Sent ${entry.amount} (${amount_unit} units) to ${entry.to} with hash ${tx_hash}`);
     cache.trackExecution(entry, tx_hash.toString());
   }
+
+  log.info(`Payouts completed.`);
+  process.exit(0);
 };
 
 const command = new Command()
