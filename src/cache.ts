@@ -11,6 +11,7 @@ interface CacheEntry {
 
 interface Skipped {
   record: Record;
+  txHash: string;
   date: string;
 }
 
@@ -69,6 +70,7 @@ export class Cache {
           // then mark this as skipped.
           staged.skipped.push({
             record: record,
+            txHash: entry.txHash,
             date: date,
           });
         }

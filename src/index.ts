@@ -76,8 +76,9 @@ const start = async (args: { config: string }): Promise<void> => {
   let cache = new Cache(CACHE_PATH);
   const { to_execute, skipped, dangling } = cache.stageActions(records);
 
+  // Check dangling actions.
   if (dangling.length != 0) {
-    log.warn(
+    log.error(
       `There are ${dangling.length} staged actions there weren't executed yet and are no longer present in the action file:`
     );
 
@@ -87,6 +88,25 @@ const start = async (args: { config: string }): Promise<void> => {
 
     log.error(`Please fix the issue or reset cache.`);
     abort();
+  }
+
+  // Check skipped actions.
+  for (const entry of skipped) {
+    log.warn(
+      `Skipping: ${entry.record.amount} to ${entry.record.to}, executed on ${entry.date}, tx hash: ${entry.txHash}`
+      );
+  }
+
+  // Check actions to be executed.
+  if (to_execute.length != 0) {
+    log.info(`There are ${to_execute.length} actions to be exeucted`);
+  } else {
+    log.warn("Nothing to execute, exiting...");
+    process.exit(0);
+  }
+
+  for (const entry of to_execute) {
+    log.info(`To execute: ${entry.amount} to ${entry.to}`);
   }
 
   // Initialize RPC endpoint.
