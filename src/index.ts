@@ -35,7 +35,10 @@ function abort() {
   process.exit(1);
 }
 
-function load_from_files(log: Logger, args: { config: string}): [Array<Record>, KeyringPair, string] {
+function load_from_files(
+  log: Logger,
+  args: { config: string }
+): [Array<Record>, KeyringPair, string] {
   // Parse Config
   log.debug(`Reading config from file ${args.config}`);
   const config = load(readFileSync(args.config, "utf8")) as Config;
@@ -77,14 +80,20 @@ const start = async (args: { config: string }): Promise<void> => {
 
   let loaded;
   try {
-     loaded = load_from_files(log, args);
+    loaded = load_from_files(log, args);
   } catch (error) {
-    log.error(`Failed to load files from config, please double-check: ${error}`);
+    log.error(
+      `Failed to load files from config, please double-check: ${error}`
+    );
     abort();
   }
 
   // Note: will never be undefined.
-  const [records, account, endpoint ] = loaded as [ Array<Record>, KeyringPair, string ];
+  const [records, account, endpoint] = loaded as [
+    Array<Record>,
+    KeyringPair,
+    string
+  ];
 
   // Init caching.
   let cache = new Cache(CACHE_PATH);
