@@ -3,7 +3,7 @@
 ## About
 
 This script reads a list of recipients and the corresonding amounts to be
-sent and executes each entry as a transaction.
+sent and executes each entry as a transaction on substrate based networks.
 
 ## Config
 
