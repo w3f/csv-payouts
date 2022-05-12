@@ -44,7 +44,6 @@ file exported from polkadot.js.org which is decrypted with the associated
 
 ```console
 $ yarn
-$ yarn build
 $ yarn start -c config.yaml
 ```
 
