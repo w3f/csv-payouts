@@ -154,7 +154,7 @@ const start = async (args: { config: string }): Promise<void> => {
   log.info("Starting transfer progress...");
   for (const entry of to_execute) {
     // Note: will never be undefined.
-    const amount_unit = entry.amount * Math.pow(10, decimals as number);
+    const amount_unit = Math.round(entry.amount * Math.pow(10, decimals as number));
     const nonce = await api.rpc.system.accountNextIndex(account.address);
 
     const tx_hash = await api.tx.balances
