@@ -42,6 +42,9 @@ file exported from polkadot.js.org which is decrypted with the associated
 
 ## Execution
 
+NOTE: The execution of this script should **not** be interrupted (for
+[caching](#caching) purposes). Instead, let it complete fully.
+
 ```console
 $ yarn
 $ yarn start -c config.yaml
