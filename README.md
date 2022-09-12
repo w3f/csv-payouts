@@ -43,8 +43,10 @@ file exported from polkadot.js.org which is decrypted with the associated
 ## Execution
 
 * NOTE: The execution of this script should **not** be interrupted (for
-[caching](#caching) purposes). Instead, let it complete fully.
-* NOTE: Please do a test run first. The author(s) take no liability (see license).
+  [caching](#caching) purposes). Instead, let it complete fully (which might
+  result in an error).
+* NOTE: Please do a test run first. The author(s) take(s) no liability (see
+  license).
 
 ```console
 $ yarn
