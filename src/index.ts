@@ -49,14 +49,13 @@ function load_from_files(
 
   let records: Record[] = [];
   const parser = parse({ delimiter: "," });
-  parser.on("readable", () => {
-    let record;
-    while ((record = parser.read()) !== null) {
-      records.push({ to: record[0], amount: record[1] });
-    }
-  });
-
   parser.write(content);
+
+  let record;
+  while ((record = parser.read()) != null) {
+      records.push({ to: record[0], amount: record[1] });
+  }
+
   parser.end();
   log.info(`Parsed ${records.length} CSV entries`);
 
